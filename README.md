@@ -15,7 +15,8 @@ A Java Swing implementation of the classic 2048 game with smooth animations and 
 
 ## Gameplay Demo
 
-![Gameplay](resources/gameplay.webm)
+<video src="resources/gameplay.webm" controls autoplay loop muted></video>
+
 
 ## Features
 
