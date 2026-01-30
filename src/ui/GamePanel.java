@@ -59,7 +59,7 @@ public class GamePanel extends JPanel {
                 int x = MARGIN + c * (TILE_SIZE + MARGIN);
                 int y = MARGIN + r * (TILE_SIZE + MARGIN);
 
-                g2.setBackground(getBackgroundForValue(tile.getValue()));
+                g2.setColor(getBackgroundForValue(tile.getValue()));
                 g2.fillRoundRect(x,y,TILE_SIZE,TILE_SIZE,15,15);
 
                 if(!tile.isEmpty()){
@@ -85,7 +85,7 @@ public class GamePanel extends JPanel {
 
     private Color getBackgroundForValue(int value) {
         return switch (value) {
-            case 0    -> new Color(0, 193, 180);
+            case 0    -> new Color(205, 193, 180);
             case 2    -> new Color(0xeee4da);
             case 4    -> new Color(0xede0c8);
             case 8    -> new Color(0xf2b179);

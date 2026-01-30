@@ -57,11 +57,11 @@ public class GameLogic {
             int write = 0;
             for (int i = 0; i < this.board[row].length; i++) {
                 if (!this.board[row][i].isEmpty()) {
-                    this.board[row][write].setValue(this.board[row][i].getValue());
                     if (write != i) {
+                        this.board[row][write].setValue(this.board[row][i].getValue());
                         this.board[row][i].setValue(0);
+                        moved = true;
                     }
-                    moved = true;
                     write++;
                 }
             }
@@ -75,7 +75,7 @@ public class GameLogic {
             for (int i = 0; i < this.board[row].length - 1; i++) {
                 var current = this.board[row][i];
                 var next = this.board[row][i+1];
-                if (current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
+                if (!current.isEmpty() && current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
                     current.setValue(current.getValue() + next.getValue());
                     current.setMerged(true);
                     next.setValue(0);
