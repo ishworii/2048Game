@@ -157,4 +157,29 @@ public class GameLogic {
         this.transpose();
         return moved;
     }
+    public boolean isGameOver() {
+        // If there's an empty space, the game continues
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (board[i][j].isEmpty()) return false;
+            }
+        }
+
+        //  Check for horizontal merges
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j].getValue() == board[i][j + 1].getValue()) return false;
+            }
+        }
+
+        // Check for vertical merges
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (board[i][j].getValue() == board[i + 1][j].getValue()) return false;
+            }
+        }
+
+        // Game Over
+        return true;
+    }
 }
