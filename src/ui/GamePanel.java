@@ -15,6 +15,7 @@ public class GamePanel extends JPanel {
     private static final int ANIMATION_DURATION = 200; // milliseconds
 
     private boolean isAnimating = false;
+    private boolean gameOver = false;
     private List<AnimatedTile> animatedTiles = new ArrayList<>();
     private long animationStartTime;
     private int[][] boardBeforeMove;
@@ -139,11 +140,12 @@ public class GamePanel extends JPanel {
                 timer.stop();
                 isAnimating = false;
                 game.spawn();
-                repaint();
 
                 if (game.isGameOver()) {
-                    System.out.println("Game Over!");
+                    gameOver = true;
                 }
+
+                repaint();
             } else {
                 repaint();
             }
@@ -157,6 +159,29 @@ public class GamePanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         drawBoard(g2);
+
+        if (gameOver) {
+            drawGameOver(g2);
+        }
+    }
+
+    private void drawGameOver(Graphics2D g2) {
+        // Semi-transparent overlay
+        g2.setColor(new Color(238, 228, 218, 200));
+        g2.fillRoundRect(MARGIN, MARGIN,
+                        4 * TILE_SIZE + 3 * MARGIN,
+                        4 * TILE_SIZE + 3 * MARGIN,
+                        15, 15);
+
+        // Game Over text
+        g2.setFont(new Font("SansSerif", Font.BOLD, 60));
+        g2.setColor(new Color(119, 110, 101));
+        String gameOverText = "Game Over!";
+        FontMetrics fm = g2.getFontMetrics();
+        int textWidth = fm.stringWidth(gameOverText);
+        int centerX = (getWidth() - textWidth) / 2;
+        int centerY = getHeight() / 2;
+        g2.drawString(gameOverText, centerX, centerY);
     }
 
     private void drawBoard(Graphics2D g2){
@@ -233,7 +258,20 @@ public class GamePanel extends JPanel {
 
     private void drawTileValue(Graphics2D g2, int value, int x, int y, int tileSize){
         String s = String.valueOf(value);
-        int fontSize = (int)(36 * (tileSize / (double)TILE_SIZE));
+
+        // Dynamic font size based on number of digits
+        int baseFontSize;
+        if (value < 100) {
+            baseFontSize = 48;
+        } else if (value < 1000) {
+            baseFontSize = 42;
+        } else if (value < 10000) {
+            baseFontSize = 36;
+        } else {
+            baseFontSize = 30;
+        }
+
+        int fontSize = (int)(baseFontSize * (tileSize / (double)TILE_SIZE));
         g2.setFont(new Font("SansSerif",Font.BOLD, fontSize));
         g2.setColor(getForegroundForValue(value));
 
