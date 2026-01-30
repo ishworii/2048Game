@@ -1,8 +1,6 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.WeakHashMap;
 
 public class GameLogic {
     private Tile[][] board =  new Tile[4][4];
@@ -47,7 +45,8 @@ public class GameLogic {
         }
     }
 
-    public void leftShift(){
+    public boolean leftShift(){
+        boolean moved = false;
         for (int row = 0 ; row < 4 ; row++) {
             int write = 0;
             for (int i = 0; i < this.board[row].length; i++) {
@@ -56,13 +55,16 @@ public class GameLogic {
                     if (write != i) {
                         this.board[row][i].setValue(0);
                     }
+                    moved = true;
                     write++;
                 }
             }
         }
+        return moved;
     }
 
-    public void merge(){
+    public boolean merge(){
+        boolean mergedAny = false;
         for (int row = 0 ; row < 4 ; row++) {
             for (int i = 0; i < this.board[row].length - 1; i++) {
                 var current = this.board[row][i];
@@ -71,9 +73,11 @@ public class GameLogic {
                     current.setValue(current.getValue() + next.getValue());
                     current.setMerged(true);
                     next.setValue(0);
+                    mergedAny  = true;
                 }
             }
         }
+        return mergedAny;
     }
 
     private void resetMergeFlags(){
@@ -84,21 +88,17 @@ public class GameLogic {
         }
     }
 
-    public void moveLeft(){
-        this.resetMergeFlags();
-        this.leftShift();
-        this.merge();
-        this.leftShift();
-    }
-
-    private void rotate(){
-        for(int i = 0 ; i < 4 ; i++){
-            var row = this.board[i];
-            var rotated = new Tile[4];
-            for (int j = 0; j < 4 ; j++){
-                rotated[j] = row[4 - 1 - j];
+    private void reverseRows() {
+        for (int i = 0; i < 4; i++) {
+            int left = 0;
+            int right = 3;
+            while (left < right) {
+                Tile temp = board[i][left];
+                board[i][left] = board[i][right];
+                board[i][right] = temp;
+                left++;
+                right--;
             }
-            this.board[i] = rotated;
         }
     }
 
@@ -113,34 +113,45 @@ public class GameLogic {
         }
     }
 
+    public boolean moveLeft(){
+        this.resetMergeFlags();
+        boolean s1 = this.leftShift();
+        boolean m = this.merge();
+        boolean s2 = this.leftShift();
+        return s1 || m || s2;
+    }
 
-    public void moveRight(){
+
+    public  boolean moveRight(){
         //rotate
-        this.rotate();
+        this.reverseRows();
         //move left
-        this.moveLeft();
+        boolean moved = this.moveLeft();
         //rotate again
-        this.rotate();
+        this.reverseRows();
+        return moved;
 
     }
 
-    public void moveUp(){
+    public boolean moveUp(){
         //transpose
         this.transpose();
-        this.moveLeft();
+        boolean moved = this.moveLeft();
         this.transpose();
+        return moved;
 
     }
 
-    public void moveDown(){
+    public boolean moveDown(){
         //transpose
         this.transpose();
         //rotate
-        this.rotate();
-        this.moveLeft();
+        this.reverseRows();
+        boolean moved = this.moveLeft();
         //rotate
-        this.rotate();
+        this.reverseRows();
         //transpose
         this.transpose();
+        return moved;
     }
 }
