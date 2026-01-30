@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GameLogic {
     private Tile[][] board =  new Tile[4][4];
@@ -12,6 +13,15 @@ public class GameLogic {
             }
         }
     }
+
+    public void setBoard(int[][] boardArray) {
+        for(int i = 0 ; i < 4 ; i++){
+            for(int j = 0; j <  4; j++){
+                this.board[i][j].setValue(boardArray[i][j]);
+            }
+        }
+    }
+
     public void spawn(){
       ArrayList<Integer> emptyIndices = new ArrayList<Integer>();
       for (int i = 0 ; i < 16 ; i ++){
@@ -34,5 +44,34 @@ public class GameLogic {
             }
             System.out.println();
         }
+    }
+
+    public void leftShift(){
+        for (int row = 0 ; row < 4 ; row++) {
+            int write = 0;
+            for (int i = 0; i < this.board[row].length; i++) {
+                if (!this.board[row][i].isEmpty()) {
+                    this.board[row][write].setValue(this.board[row][i].getValue());
+                    if (write != i) {
+                        this.board[row][i].setValue(0);
+                    }
+                    write++;
+                }
+            }
+        }
+    }
+
+    public void merge(){
+        for (int row = 0 ; row < 4 ; row++) {
+            for (int i = 0; i < this.board[row].length - 1; i++) {
+                var current = this.board[row][i];
+                var next = this.board[row][i+1];
+                if (current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
+                    current.setValue(current.getValue() + next.getValue());
+                    next.setValue(0);
+                }
+            }
+        }
+        this.leftShift();
     }
 }
