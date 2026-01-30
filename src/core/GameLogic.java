@@ -2,6 +2,7 @@ package core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.WeakHashMap;
 
 public class GameLogic {
     private Tile[][] board =  new Tile[4][4];
@@ -68,10 +69,78 @@ public class GameLogic {
                 var next = this.board[row][i+1];
                 if (current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
                     current.setValue(current.getValue() + next.getValue());
+                    current.setMerged(true);
                     next.setValue(0);
                 }
             }
         }
+    }
+
+    private void resetMergeFlags(){
+        for(int i = 0; i < 4; i++){
+            for(int j = 0 ; j < 4 ; j++){
+                this.board[i][j].setMerged(false);
+            }
+        }
+    }
+
+    public void moveLeft(){
+        this.resetMergeFlags();
         this.leftShift();
+        this.merge();
+        this.leftShift();
+    }
+
+    private void rotate(){
+        for(int i = 0 ; i < 4 ; i++){
+            var row = this.board[i];
+            var rotated = new Tile[4];
+            for (int j = 0; j < 4 ; j++){
+                rotated[j] = row[4 - 1 - j];
+            }
+            this.board[i] = rotated;
+        }
+    }
+
+    public void transpose() {
+        int n = this.board.length;
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                var temp = this.board[i][j];
+                this.board[i][j] = this.board[j][i];
+                this.board[j][i] = temp;
+            }
+        }
+    }
+
+
+    public void moveRight(){
+        //rotate
+        this.rotate();
+        //move left
+        this.moveLeft();
+        //rotate again
+        this.rotate();
+
+    }
+
+    public void moveUp(){
+        //transpose
+        this.transpose();
+        this.moveLeft();
+        this.transpose();
+
+    }
+
+    public void moveDown(){
+        //transpose
+        this.transpose();
+        //rotate
+        this.rotate();
+        this.moveLeft();
+        //rotate
+        this.rotate();
+        //transpose
+        this.transpose();
     }
 }
