@@ -36,13 +36,16 @@ public class GameLogic {
       }
     }
 
-    public void printBoard(){
-        for(int i = 0 ; i < 4 ; i++){
-            for(int j = 0; j < 4 ; j++){
-                System.out.print(this.board[i][j] + "\t");
+    public void printBoard() {
+        System.out.println("-------------------------");
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                String val = board[i][j].isEmpty() ? "." : String.valueOf(board[i][j].getValue());
+                System.out.printf("| %4s ", val);
             }
-            System.out.println();
+            System.out.println("|");
         }
+        System.out.println("-------------------------");
     }
 
     public boolean leftShift(){
