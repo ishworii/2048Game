@@ -3,7 +3,7 @@ package core;
 import java.util.ArrayList;
 
 public class GameLogic {
-    private Tile[][] board =  new Tile[4][4];
+    private final Tile[][] board =  new Tile[4][4];
 
     public GameLogic(){
         for(int i = 0 ; i < 4 ; i++){
@@ -12,13 +12,16 @@ public class GameLogic {
             }
         }
     }
-
     public void setBoard(int[][] boardArray) {
         for(int i = 0 ; i < 4 ; i++){
             for(int j = 0; j <  4; j++){
                 this.board[i][j].setValue(boardArray[i][j]);
             }
         }
+    }
+
+    public Tile[][] getBoard(){
+        return board;
     }
 
     public void spawn(){
