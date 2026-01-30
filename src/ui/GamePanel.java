@@ -10,8 +10,9 @@ import java.util.List;
 
 public class GamePanel extends JPanel {
     private final GameLogic game;
-    private static final int TILE_SIZE  = 100;
-    private static final int MARGIN = 15;
+    private static final int TILE_SIZE  = 120;
+    private static final int MARGIN = 16;
+    private static final int HEADER_HEIGHT = 80;
     private static final int ANIMATION_DURATION = 200; // milliseconds
 
     private boolean isAnimating = false;
@@ -42,9 +43,11 @@ public class GamePanel extends JPanel {
     public GamePanel(GameLogic game){
         this.game = game;
 
-        int size = (4 * TILE_SIZE) + (5 * MARGIN);
-        setPreferredSize(new Dimension(size,size));
-        setBackground(new Color(187,173,160));
+        int boardSize = (4 * TILE_SIZE) + (5 * MARGIN);
+        int width = boardSize + (2 * MARGIN);
+        int height = boardSize + HEADER_HEIGHT + (2 * MARGIN);
+        setPreferredSize(new Dimension(width, height));
+        setBackground(new Color(250, 248, 239));
         setFocusable(true);
         addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
@@ -158,6 +161,8 @@ public class GamePanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+
+        drawHeader(g2);
         drawBoard(g2);
 
         if (gameOver) {
@@ -165,13 +170,43 @@ public class GamePanel extends JPanel {
         }
     }
 
+    private void drawHeader(Graphics2D g2) {
+        // Draw "2048" title
+        g2.setFont(new Font("SansSerif", Font.BOLD, 48));
+        g2.setColor(new Color(119, 110, 101));
+        g2.drawString("2048", MARGIN, 55);
+
+        // Draw score box
+        int scoreBoxWidth = 120;
+        int scoreBoxHeight = 50;
+        int scoreBoxX = getWidth() - scoreBoxWidth - MARGIN;
+        int scoreBoxY = 15;
+
+        g2.setColor(new Color(187, 173, 160));
+        g2.fillRoundRect(scoreBoxX, scoreBoxY, scoreBoxWidth, scoreBoxHeight, 8, 8);
+
+        // Draw "SCORE" label
+        g2.setFont(new Font("SansSerif", Font.BOLD, 12));
+        g2.setColor(new Color(238, 228, 218));
+        String scoreLabel = "SCORE";
+        FontMetrics fm1 = g2.getFontMetrics();
+        int labelWidth = fm1.stringWidth(scoreLabel);
+        g2.drawString(scoreLabel, scoreBoxX + (scoreBoxWidth - labelWidth) / 2, scoreBoxY + 18);
+
+        // Draw score value
+        g2.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g2.setColor(Color.WHITE);
+        String scoreText = String.valueOf(game.getScore());
+        FontMetrics fm2 = g2.getFontMetrics();
+        int scoreWidth = fm2.stringWidth(scoreText);
+        g2.drawString(scoreText, scoreBoxX + (scoreBoxWidth - scoreWidth) / 2, scoreBoxY + 42);
+    }
+
     private void drawGameOver(Graphics2D g2) {
         // Semi-transparent overlay
+        int boardSize = (4 * TILE_SIZE) + (5 * MARGIN);
         g2.setColor(new Color(238, 228, 218, 200));
-        g2.fillRoundRect(MARGIN, MARGIN,
-                        4 * TILE_SIZE + 3 * MARGIN,
-                        4 * TILE_SIZE + 3 * MARGIN,
-                        15, 15);
+        g2.fillRoundRect(MARGIN, HEADER_HEIGHT + MARGIN, boardSize, boardSize, 8, 8);
 
         // Game Over text
         g2.setFont(new Font("SansSerif", Font.BOLD, 60));
@@ -180,16 +215,21 @@ public class GamePanel extends JPanel {
         FontMetrics fm = g2.getFontMetrics();
         int textWidth = fm.stringWidth(gameOverText);
         int centerX = (getWidth() - textWidth) / 2;
-        int centerY = getHeight() / 2;
+        int centerY = HEADER_HEIGHT + MARGIN + (boardSize / 2);
         g2.drawString(gameOverText, centerX, centerY);
     }
 
     private void drawBoard(Graphics2D g2){
+        // Draw board background
+        int boardSize = (4 * TILE_SIZE) + (5 * MARGIN);
+        g2.setColor(new Color(187, 173, 160));
+        g2.fillRoundRect(MARGIN, HEADER_HEIGHT + MARGIN, boardSize, boardSize, 8, 8);
+
         // Draw empty tile backgrounds
         for(int r = 0 ; r < 4 ; r++){
             for(int c = 0; c < 4 ; c++){
-                int x = MARGIN + c * (TILE_SIZE + MARGIN);
-                int y = MARGIN + r * (TILE_SIZE + MARGIN);
+                int x = MARGIN + MARGIN + c * (TILE_SIZE + MARGIN);
+                int y = HEADER_HEIGHT + MARGIN + MARGIN + r * (TILE_SIZE + MARGIN);
                 g2.setColor(getBackgroundForValue(0));
                 g2.fillRoundRect(x,y,TILE_SIZE,TILE_SIZE,15,15);
             }
@@ -207,8 +247,8 @@ public class GamePanel extends JPanel {
                 double currentRow = tile.startRow + (tile.endRow - tile.startRow) * progress;
                 double currentCol = tile.startCol + (tile.endCol - tile.startCol) * progress;
 
-                int x = MARGIN + (int)Math.round(currentCol * (TILE_SIZE + MARGIN));
-                int y = MARGIN + (int)Math.round(currentRow * (TILE_SIZE + MARGIN));
+                int x = MARGIN + MARGIN + (int)Math.round(currentCol * (TILE_SIZE + MARGIN));
+                int y = HEADER_HEIGHT + MARGIN + MARGIN + (int)Math.round(currentRow * (TILE_SIZE + MARGIN));
 
                 // Show merged value at the end of animation
                 int displayValue = tile.value;
@@ -240,8 +280,8 @@ public class GamePanel extends JPanel {
                 for(int c = 0; c < 4 ; c++){
                     Tile tile = board[r][c];
                     if(!tile.isEmpty()){
-                        int x = MARGIN + c * (TILE_SIZE + MARGIN);
-                        int y = MARGIN + r * (TILE_SIZE + MARGIN);
+                        int x = MARGIN + MARGIN + c * (TILE_SIZE + MARGIN);
+                        int y = HEADER_HEIGHT + MARGIN + MARGIN + r * (TILE_SIZE + MARGIN);
 
                         g2.setColor(getBackgroundForValue(tile.getValue()));
                         g2.fillRoundRect(x,y,TILE_SIZE,TILE_SIZE,15,15);

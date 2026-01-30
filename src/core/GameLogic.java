@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class GameLogic {
     private final Tile[][] board =  new Tile[4][4];
+    private int score = 0;
 
     public GameLogic(){
         for(int i = 0 ; i < 4 ; i++){
@@ -11,6 +12,10 @@ public class GameLogic {
                 this.board[i][j] = new Tile();
             }
         }
+    }
+
+    public int getScore() {
+        return score;
     }
     public void setBoard(int[][] boardArray) {
         for(int i = 0 ; i < 4 ; i++){
@@ -76,9 +81,11 @@ public class GameLogic {
                 var current = this.board[row][i];
                 var next = this.board[row][i+1];
                 if (!current.isEmpty() && current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
-                    current.setValue(current.getValue() + next.getValue());
+                    int newValue = current.getValue() + next.getValue();
+                    current.setValue(newValue);
                     current.setMerged(true);
                     next.setValue(0);
+                    score += newValue;
                     mergedAny  = true;
                 }
             }
