@@ -18,6 +18,28 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(size,size));
         setBackground(new Color(187,173,160));
         setFocusable(true);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                boolean moved = false;
+
+                switch (e.getKeyCode()) {
+                    case java.awt.event.KeyEvent.VK_UP -> moved = game.moveUp();
+                    case java.awt.event.KeyEvent.VK_DOWN -> moved = game.moveDown();
+                    case java.awt.event.KeyEvent.VK_LEFT -> moved = game.moveLeft();
+                    case java.awt.event.KeyEvent.VK_RIGHT -> moved = game.moveRight();
+                }
+
+                if (moved) {
+                    game.spawn();
+                    repaint(); // Triggers paintComponent to redraw the UI
+
+                    if (game.isGameOver()) {
+                        System.out.println("Game Over!");
+                    }
+                }
+            }
+        });
     }
 
     @Override
