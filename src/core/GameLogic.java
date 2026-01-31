@@ -17,12 +17,23 @@ public class GameLogic {
     public int getScore() {
         return score;
     }
+
     public void setBoard(int[][] boardArray) {
         for(int i = 0 ; i < 4 ; i++){
             for(int j = 0; j <  4; j++){
                 this.board[i][j].setValue(boardArray[i][j]);
             }
         }
+    }
+    public Tile[][] getBoardCopy(){
+        Tile[][] copy = new Tile[4][4];
+        for(int i = 0; i < 4 ; i++){
+            for(int j = 0 ; j < 4 ; j++){
+                copy[i][j] = new Tile();
+                copy[i][j].setValue(board[i][j].getValue());
+            }
+        }
+        return copy;
     }
 
     public Tile[][] getBoard(){
@@ -56,15 +67,15 @@ public class GameLogic {
         System.out.println("-------------------------");
     }
 
-    public boolean leftShift(){
+    public boolean leftShift(Tile[][] targetBoard){
         boolean moved = false;
         for (int row = 0 ; row < 4 ; row++) {
             int write = 0;
-            for (int i = 0; i < this.board[row].length; i++) {
-                if (!this.board[row][i].isEmpty()) {
+            for (int i = 0; i < targetBoard[row].length; i++) {
+                if (!targetBoard[row][i].isEmpty()) {
                     if (write != i) {
-                        this.board[row][write].setValue(this.board[row][i].getValue());
-                        this.board[row][i].setValue(0);
+                        targetBoard[row][write].setValue(targetBoard[row][i].getValue());
+                        targetBoard[row][i].setValue(0);
                         moved = true;
                     }
                     write++;
@@ -74,12 +85,12 @@ public class GameLogic {
         return moved;
     }
 
-    public boolean merge(){
+    public boolean merge(Tile[][] targetBoard){
         boolean mergedAny = false;
         for (int row = 0 ; row < 4 ; row++) {
-            for (int i = 0; i < this.board[row].length - 1; i++) {
-                var current = this.board[row][i];
-                var next = this.board[row][i+1];
+            for (int i = 0; i < targetBoard[row].length - 1; i++) {
+                var current = targetBoard[row][i];
+                var next = targetBoard[row][i+1];
                 if (!current.isEmpty() && current.getValue() == next.getValue() && !current.isMerged() && !next.isMerged()){
                     int newValue = current.getValue() + next.getValue();
                     current.setValue(newValue);
@@ -93,80 +104,97 @@ public class GameLogic {
         return mergedAny;
     }
 
-    private void resetMergeFlags(){
+    private void resetMergeFlags(Tile[][] targetBoard){
         for(int i = 0; i < 4; i++){
             for(int j = 0 ; j < 4 ; j++){
-                this.board[i][j].setMerged(false);
+                targetBoard[i][j].setMerged(false);
             }
         }
     }
 
-    private void reverseRows() {
+    private void reverseRows(Tile[][] targetBoard) {
         for (int i = 0; i < 4; i++) {
             int left = 0;
             int right = 3;
             while (left < right) {
-                Tile temp = board[i][left];
-                board[i][left] = board[i][right];
-                board[i][right] = temp;
+                Tile temp = targetBoard[i][left];
+                targetBoard[i][left] = targetBoard[i][right];
+                targetBoard[i][right] = temp;
                 left++;
                 right--;
             }
         }
     }
 
-    public void transpose() {
-        int n = this.board.length;
+    public void transpose(Tile[][] targetBoard) {
+        int n = targetBoard.length;
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
-                var temp = this.board[i][j];
-                this.board[i][j] = this.board[j][i];
-                this.board[j][i] = temp;
+                var temp = targetBoard[i][j];
+                targetBoard[i][j] = targetBoard[j][i];
+                targetBoard[j][i] = temp;
             }
         }
     }
 
-    public boolean moveLeft(){
-        this.resetMergeFlags();
-        boolean s1 = this.leftShift();
-        boolean m = this.merge();
-        boolean s2 = this.leftShift();
+    public boolean moveLeft(Tile[][] targetBoard){
+        this.resetMergeFlags(targetBoard);
+        boolean s1 = this.leftShift(targetBoard);
+        boolean m = this.merge(targetBoard);
+        boolean s2 = this.leftShift(targetBoard);
         return s1 || m || s2;
     }
 
+    public boolean moveLeft(){
+        return moveLeft(this.board);
+    }
 
-    public  boolean moveRight(){
+
+    public  boolean moveRight(Tile[][] targetBoard){
         //rotate
-        this.reverseRows();
+        this.reverseRows(targetBoard);
         //move left
-        boolean moved = this.moveLeft();
+        boolean moved = this.moveLeft(targetBoard);
         //rotate again
-        this.reverseRows();
+        this.reverseRows(targetBoard);
+        return moved;
+
+    }
+
+    public boolean moveRight(){
+        return moveRight(this.board);
+    }
+
+    public boolean moveUp(Tile[][] targetBoard){
+        //transpose
+        this.transpose(targetBoard);
+        boolean moved = this.moveLeft(targetBoard);
+        this.transpose(targetBoard);
         return moved;
 
     }
 
     public boolean moveUp(){
-        //transpose
-        this.transpose();
-        boolean moved = this.moveLeft();
-        this.transpose();
-        return moved;
+        return moveUp(this.board);
+    }
 
+    public boolean moveDown(Tile[][] targetBoard){
+        //transpose
+        this.transpose(targetBoard);
+        //rotate
+        this.reverseRows(targetBoard);
+        boolean moved = this.moveLeft(targetBoard);
+        //rotate
+        this.reverseRows(targetBoard);
+        //transpose
+        this.transpose(targetBoard);
+        return moved;
     }
 
     public boolean moveDown(){
-        //transpose
-        this.transpose();
-        //rotate
-        this.reverseRows();
-        boolean moved = this.moveLeft();
-        //rotate
-        this.reverseRows();
-        //transpose
-        this.transpose();
-        return moved;
+        return moveDown(this.board);
     }
+
     public boolean isGameOver() {
         // If there's an empty space, the game continues
         for (int i = 0; i < 4; i++) {
