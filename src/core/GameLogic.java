@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameLogic {
     private final Tile[][] board =  new Tile[4][4];
@@ -25,12 +26,13 @@ public class GameLogic {
             }
         }
     }
+
     public Tile[][] getBoardCopy(){
         Tile[][] copy = new Tile[4][4];
-        for(int i = 0; i < 4 ; i++){
-            for(int j = 0 ; j < 4 ; j++){
+        for(int i = 0 ; i < 4 ; i++){
+            for(int j = 0; j < 4; j++){
                 copy[i][j] = new Tile();
-                copy[i][j].setValue(board[i][j].getValue());
+                copy[i][j].setValue(this.board[i][j].getValue());
             }
         }
         return copy;
@@ -65,6 +67,18 @@ public class GameLogic {
             System.out.println("|");
         }
         System.out.println("-------------------------");
+    }
+
+    public List<int[]> getEmptyCells(Tile[][] targetBoard) {
+        List<int[]> emptyCells = new ArrayList<>();
+        for (int r = 0; r < 4; r++) {
+            for (int c = 0; c < 4; c++) {
+                if (targetBoard[r][c].getValue() == 0) {
+                    emptyCells.add(new int[]{r, c});
+                }
+            }
+        }
+        return emptyCells;
     }
 
     public boolean leftShift(Tile[][] targetBoard){
@@ -193,6 +207,16 @@ public class GameLogic {
 
     public boolean moveDown(){
         return moveDown(this.board);
+    }
+
+    public boolean simulateMove(Tile[][] tempBoard, String direction){
+        return switch (direction) {
+            case "W" -> moveUp(tempBoard);
+            case "A" -> moveLeft(tempBoard);
+            case "D" -> moveRight(tempBoard);
+            case "S" -> moveDown(tempBoard);
+            default -> false;
+        };
     }
 
     public boolean isGameOver() {

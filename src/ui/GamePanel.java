@@ -1,5 +1,6 @@
 package ui;
 
+import core.AIPlayer;
 import core.GameLogic;
 import core.Tile;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class GamePanel extends JPanel {
     private final GameLogic game;
+    private final AIPlayer ai;
     private static final int TILE_SIZE  = 120;
     private static final int MARGIN = 16;
     private static final int HEADER_HEIGHT = 80;
@@ -17,10 +19,11 @@ public class GamePanel extends JPanel {
 
     private boolean isAnimating = false;
     private boolean gameOver = false;
-    private List<AnimatedTile> animatedTiles = new ArrayList<>();
+    private final List<AnimatedTile> animatedTiles = new ArrayList<>();
     private long animationStartTime;
     private int[][] boardBeforeMove;
     private int[][] boardAfterMove;
+    private Timer autoPlayTimer;
 
     private static class AnimatedTile {
         int value;
@@ -42,6 +45,7 @@ public class GamePanel extends JPanel {
 
     public GamePanel(GameLogic game){
         this.game = game;
+        this.ai = new AIPlayer(game);
 
         int boardSize = (4 * TILE_SIZE) + (5 * MARGIN);
         int width = boardSize + (2 * MARGIN);
@@ -71,6 +75,7 @@ public class GamePanel extends JPanel {
                 }
             }
         });
+        setupAutoPlay();
     }
 
     private int[][] captureBoard() {
@@ -349,6 +354,41 @@ public class GamePanel extends JPanel {
         }
         // For 8 and up, use the light off-white
         return new Color(0xf9f6f2);
+    }
+
+    public void setupAutoPlay() {
+        // 100 milliseconds
+        autoPlayTimer = new Timer(100, e -> {
+            String bestMove = ai.getBestMove();
+
+            if (bestMove != null) {
+                boolean moved = switch (bestMove) {
+                    case "W" -> game.moveUp();
+                    case "A" -> game.moveLeft();
+                    case "S" -> game.moveDown();
+                    case "D" -> game.moveRight();
+                    default  -> false;
+                };
+
+                if (moved) {
+                    game.spawn();
+                    repaint(); // Refresh the GUI to show the new state
+
+                    if (game.isGameOver()) {
+                        autoPlayTimer.stop();
+                        System.out.println("AI reached Game Over.");
+                    }
+                }
+            }
+        });
+    }
+
+    public void toggleAutoPlay() {
+        if (autoPlayTimer.isRunning()) {
+            autoPlayTimer.stop();
+        } else {
+            autoPlayTimer.start();
+        }
     }
 
 }
