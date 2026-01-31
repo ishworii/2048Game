@@ -110,7 +110,10 @@ public class GameLogic {
                     current.setValue(newValue);
                     current.setMerged(true);
                     next.setValue(0);
-                    score += newValue;
+                    // Only update score if merging on the actual game board
+                    if (targetBoard == this.board) {
+                        score += newValue;
+                    }
                     mergedAny  = true;
                 }
             }

@@ -359,6 +359,14 @@ public class GamePanel extends JPanel {
     public void setupAutoPlay() {
         // 100 milliseconds
         autoPlayTimer = new Timer(100, e -> {
+            if (game.isGameOver()) {
+                autoPlayTimer.stop();
+                gameOver = true;
+                repaint();
+                System.out.println("AI reached Game Over. Final Score: " + game.getScore());
+                return;
+            }
+
             String bestMove = ai.getBestMove();
 
             if (bestMove != null) {
@@ -372,11 +380,21 @@ public class GamePanel extends JPanel {
 
                 if (moved) {
                     game.spawn();
-                    repaint(); // Refresh the GUI to show the new state
+                    repaint();
 
                     if (game.isGameOver()) {
                         autoPlayTimer.stop();
-                        System.out.println("AI reached Game Over.");
+                        gameOver = true;
+                        repaint();
+                        System.out.println("AI reached Game Over. Final Score: " + game.getScore());
+                    }
+                } else {
+                    // No move was possible, check game over
+                    if (game.isGameOver()) {
+                        autoPlayTimer.stop();
+                        gameOver = true;
+                        repaint();
+                        System.out.println("AI reached Game Over. Final Score: " + game.getScore());
                     }
                 }
             }
